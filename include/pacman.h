@@ -13,12 +13,6 @@ public:
         setPosition(positionX, positionY);
     }
 
-    void handleMousePress(int x, int y) {
-        x = static_cast<int>(x / BLOCK_SIZE) * BLOCK_SIZE;
-        y = static_cast<int>(y / BLOCK_SIZE) * BLOCK_SIZE;
-        targetPoint = {x, y};
-    }
-
     void setWay(const std::queue<sf::Vector2i>& way) {
         this->way = way;
         if (!this->way.empty()) {

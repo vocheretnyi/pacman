@@ -5,6 +5,7 @@
 #include <vector>
 
 #include "game_map.h"
+#include "pacman.h"
 
 class GameWindow : public sf::RenderWindow {
 public:
@@ -13,38 +14,43 @@ public:
         setFramerateLimit(MAX_FPS);
     }
 
-    void handleEvents(PacMan& pacMan) {
+    void handleEvents() {
         sf::Event event;
         while (pollEvent(event)) {
             if (event.type == sf::Event::Closed) {
                 close();
             } else if (event.type == sf::Event::MouseButtonReleased) {
-                createWayTo()
-                std::queue<sf::Vector2i> way;
-                way.push({event.touch.x, event.touch.y});
-                way.push({100, 100});
-                way.push({625, 325});
-                pacMan.setWay(way);
+                pacMan->setWay(gameMap->createWayTo(event.touch.x, event.touch.y, pacMan->getPosition()));
             }
 
         }
     }
 
-    void render(const sf::Shape& shape, const GameMap& gameMap) {
+    void render() {
         clear();
-        drawMap(gameMap);
-        draw(shape);
+        drawMap();
+        draw(*pacMan);
         display();
     }
 
-    void drawMap(const GameMap& gameMap) {
-        for (int x = 0; x < gameMap.getWidth(); ++x) {
-            for (int y = 0; y < gameMap.getHeight(); ++y) {
-                draw(gameMap.getRectangles()[x][y]);
+    void drawMap() {
+        for (int x = 0; x < gameMap->getWidth(); ++x) {
+            for (int y = 0; y < gameMap->getHeight(); ++y) {
+                draw(gameMap->getRectangles()[x][y]);
             }
         }
+    }
+
+    void setPacMan(PacMan* _pacMan) {
+        pacMan = _pacMan;
+    }
+
+    void setGameMap(GameMap* _gameMap) {
+        gameMap = _gameMap;
     }
 
 private:
     const size_t MAX_FPS = 60;
+    PacMan* pacMan;
+    GameMap* gameMap;
 };
