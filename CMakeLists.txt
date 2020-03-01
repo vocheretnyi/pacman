@@ -16,7 +16,7 @@ find_package(SFML 2.5.1 COMPONENTS window graphics system REQUIRED)
 
 include_directories(include)
 
-add_executable(pac_man src/main.cpp)
+add_executable(pac_man src/main.cpp src/game_map.cpp src/pacman.cpp src/PathFinder.cpp)
 
 target_link_libraries(pac_man sfml-graphics sfml-window sfml-system)
 
