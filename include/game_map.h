@@ -57,5 +57,5 @@ private:
 
     static int Round(float x, float BLOCK_SIZE);
 
-    std::queue<sf::Vector2f> ConvertToMapCoordinats(const std::vector<sf::Vector2i>& way) const;
+    std::queue<sf::Vector2f> ConvertToMapCoordinates(const std::vector<sf::Vector2i>& way) const;
 };

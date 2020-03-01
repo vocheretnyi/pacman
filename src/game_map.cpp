@@ -1,10 +1,8 @@
 #include "game_map.h"
 
 #include <SFML/Graphics.hpp>
-#include <iostream>
 #include <vector>
 #include <queue>
-#include <algorithm>
 
 #include "statistics.h"
 #include "PathFinder.h"
@@ -13,7 +11,6 @@ using namespace std;
 
 GameMap::GameMap(size_t width, size_t height)
         : _width(width), _height(height) {
-    srand(time(NULL));
     pathFinder = PathFinder(_width, _height, FIELD_MAZE);
     _rectangles.resize(_width);
     for (int x = 0; x < _width; ++x) {
@@ -49,13 +46,13 @@ queue<sf::Vector2f> GameMap::createWayTo(float x, float y, const sf::Vector2f& s
     int st_x = Round(startPos.x, BLOCK_SIZE);
     int st_y = Round(startPos.y, BLOCK_SIZE);
 
-    auto res1 = ConvertToMapCoordinats(pathFinder.dfs(st_x, st_y, fn_x, fn_y));
-    auto res2 = ConvertToMapCoordinats(pathFinder.bfs(st_x, st_y, fn_x, fn_y));
+    auto res1 = ConvertToMapCoordinates(pathFinder.dfs(st_x, st_y, fn_x, fn_y));
+    auto res2 = ConvertToMapCoordinates(pathFinder.bfs(st_x, st_y, fn_x, fn_y));
 
     return res2;
 }
 
-queue<sf::Vector2f> GameMap::ConvertToMapCoordinats(const vector<sf::Vector2i>& way) const {
+queue<sf::Vector2f> GameMap::ConvertToMapCoordinates(const vector<sf::Vector2i>& way) const {
     queue<sf::Vector2f> convertedWay;
     for (const auto& point : way) {
         convertedWay.push({point.x * BLOCK_SIZE, point.y * BLOCK_SIZE});
