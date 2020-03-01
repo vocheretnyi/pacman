@@ -6,8 +6,8 @@
 
 int main() {
     GameMap gameMap;
-    PacMan pacMan(12.5, 25, 25);
-    GameWindow window(800, 600, "PAC-MAN GAME");
+    PacMan pacMan(12.5, 50, 50);
+    GameWindow window(625, 625, "PAC-MAN GAME");
     window.setGameMap(&gameMap);
     window.setPacMan(&pacMan);
 

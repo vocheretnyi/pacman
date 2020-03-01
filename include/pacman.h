@@ -3,14 +3,15 @@
 #include <SFML/Graphics.hpp>
 #include <queue>
 
-const float BLOCK_SIZE = 25.0;
+const char PACMAN_TEXTURE[] = "/home/vocheretnyi/CLionProjects/pac-man/pacman.png";
 
 class PacMan : public sf::CircleShape {
 public:
     PacMan(double radius, double positionX = 0.0, double positionY = 0.0)
             : sf::CircleShape(radius) {
-        setFillColor(sf::Color::Yellow);
         setPosition(positionX, positionY);
+        texture.loadFromFile(PACMAN_TEXTURE);
+        setTexture(&texture);
     }
 
     void setWay(const std::queue<sf::Vector2i>& way) {
@@ -39,7 +40,7 @@ public:
             } else {
                 newX = x + step;
             }
-        } else if (newX  > targetPoint.x) {
+        } else if (newX > targetPoint.x) {
             if (newX - step < targetPoint.x) {
                 newX = targetPoint.x;
             } else {
@@ -64,7 +65,7 @@ public:
                 targetPoint = way.front();
                 way.pop();
             } else {
-                targetPoint = {-1 ,-1};
+                targetPoint = {-1, -1};
             }
         }
 
@@ -72,7 +73,8 @@ public:
     }
 
 private:
-    const float SPEED = 120.0; // pixels per second
+    const float SPEED = 150.0; // pixels per second
     sf::Vector2i targetPoint = {-1, -1};
     std::queue<sf::Vector2i> way;
+    sf::Texture texture;
 };

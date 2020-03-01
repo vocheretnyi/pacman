@@ -9,7 +9,7 @@
 
 class GameWindow : public sf::RenderWindow {
 public:
-    GameWindow(size_t width, size_t height, const char* title)
+    GameWindow(size_t width, size_t height, const char *title)
             : sf::RenderWindow(sf::VideoMode(width, height), title) {
         setFramerateLimit(MAX_FPS);
     }
@@ -41,16 +41,16 @@ public:
         }
     }
 
-    void setPacMan(PacMan* _pacMan) {
+    void setPacMan(PacMan *_pacMan) {
         pacMan = _pacMan;
     }
 
-    void setGameMap(GameMap* _gameMap) {
+    void setGameMap(GameMap *_gameMap) {
         gameMap = _gameMap;
     }
 
 private:
     const size_t MAX_FPS = 60;
-    PacMan* pacMan;
-    GameMap* gameMap;
+    PacMan *pacMan;
+    GameMap *gameMap;
 };
