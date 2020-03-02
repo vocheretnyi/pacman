@@ -38,11 +38,13 @@ const std::vector<std::string> FIELD_MAZE = {
 
 class GameMap {
 public:
-    GameMap(size_t width = 25, size_t height = 25); // TODO: change
+    GameMap();
 
     size_t getWidth() const;
 
     size_t getHeight() const;
+
+    float getBlockSize() const;
 
     const std::vector<std::vector<sf::RectangleShape>>& getRectangles() const;
 
@@ -50,9 +52,9 @@ public:
 
 private:
     const float BLOCK_SIZE = 25.0;
-    size_t _width;
-    size_t _height;
-    std::vector<std::vector<sf::RectangleShape> > _rectangles;
+    size_t width;
+    size_t height;
+    std::vector<std::vector<sf::RectangleShape> > rectangles;
     PathFinder pathFinder;
 
     static int Round(float x, float BLOCK_SIZE);

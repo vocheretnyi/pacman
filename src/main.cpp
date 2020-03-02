@@ -8,8 +8,8 @@ std::string PACMAN_TEXTURE = "/home/vocheretnyi/CLionProjects/pac-man/resources/
 
 int main() {
     GameMap gameMap;
-    PacMan pacMan(PACMAN_TEXTURE, 12.5, 50, 50);
-    GameWindow window(625, 625, "PAC-MAN GAME");
+    PacMan pacMan(PACMAN_TEXTURE,  gameMap.getBlockSize() / 2.0, 50, 50);
+    GameWindow window(gameMap.getWidth() * gameMap.getBlockSize(), gameMap.getHeight() * gameMap.getBlockSize(), "PAC-MAN GAME");
     window.setGameMap(&gameMap);
     window.setPacMan(&pacMan);
 

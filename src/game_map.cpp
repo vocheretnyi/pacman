@@ -9,16 +9,17 @@
 
 using namespace std;
 
-GameMap::GameMap(size_t width, size_t height)
-        : _width(width), _height(height) {
-    pathFinder = PathFinder(_width, _height, FIELD_MAZE);
-    _rectangles.resize(_width);
-    for (int x = 0; x < _width; ++x) {
-        _rectangles[x].resize(_height);
-        for (int y = 0; y < _height; ++y) {
-            _rectangles[x][y].setPosition(x * BLOCK_SIZE, y * BLOCK_SIZE);
-            _rectangles[x][y].setSize(sf::Vector2f{BLOCK_SIZE, BLOCK_SIZE});
-            _rectangles[x][y].setFillColor(
+GameMap::GameMap() {
+    width = FIELD_MAZE[0].size();
+    height = FIELD_MAZE.size();
+    pathFinder = PathFinder(width, height, FIELD_MAZE);
+    rectangles.resize(width);
+    for (int x = 0; x < width; ++x) {
+        rectangles[x].resize(height);
+        for (int y = 0; y < height; ++y) {
+            rectangles[x][y].setPosition(x * BLOCK_SIZE, y * BLOCK_SIZE);
+            rectangles[x][y].setSize(sf::Vector2f{BLOCK_SIZE, BLOCK_SIZE});
+            rectangles[x][y].setFillColor(
                     FIELD_MAZE[y][x] == '#'
                     ? sf::Color(52, 93, 199)
                     : sf::Color(40, 40, 40)
@@ -28,15 +29,19 @@ GameMap::GameMap(size_t width, size_t height)
 }
 
 size_t GameMap::getWidth() const {
-    return _width;
+    return width;
 }
 
 size_t GameMap::getHeight() const {
-    return _height;
+    return height;
+}
+
+float GameMap::getBlockSize() const {
+    return BLOCK_SIZE;
 }
 
 const vector<vector<sf::RectangleShape>>& GameMap::getRectangles() const {
-    return _rectangles;
+    return rectangles;
 }
 
 queue<sf::Vector2f> GameMap::createWayTo(float x, float y, const sf::Vector2f& startPos) const {
