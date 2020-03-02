@@ -11,7 +11,7 @@ class GameWindow : public sf::RenderWindow {
 public:
     GameWindow(size_t width, size_t height, const char *title)
             : sf::RenderWindow(sf::VideoMode(width, height), title) {
-        setFramerateLimit(MAX_FPS);
+        setFramerateLimit(kMaxFPS);
     }
 
     void handleEvents() {
@@ -50,7 +50,7 @@ public:
     }
 
 private:
-    const size_t MAX_FPS = 60;
+    const size_t kMaxFPS = 60;
     PacMan *pacMan;
     GameMap *gameMap;
 };

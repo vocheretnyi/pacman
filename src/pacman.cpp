@@ -23,7 +23,7 @@ void PacMan::update(float elapsedTime) {
         return;
     }
 
-    const float step = SPEED * elapsedTime;
+    const float step = kSpeed * elapsedTime;
 
     float x = getPosition().x;
     float y = getPosition().y;

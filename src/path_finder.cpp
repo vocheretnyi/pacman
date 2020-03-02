@@ -1,4 +1,4 @@
-#include "PathFinder.h"
+#include "path_finder.h"
 
 #include <SFML/Graphics.hpp>
 #include <iostream>
