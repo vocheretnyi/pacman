@@ -4,10 +4,11 @@
 #include "game_window.h"
 #include "game_map.h"
 
-std::string PACMAN_TEXTURE = "/home/vocheretnyi/CLionProjects/pac-man/resources/pacman.png";
+std::string PACMAN_TEXTURE = "../resources/pacman.png";
 
 int main() {
     GameMap gameMap;
+//    gameMap.Test();
     PacMan pacMan(PACMAN_TEXTURE,  gameMap.getBlockSize() / 2.0, 50, 50);
     GameWindow window(gameMap.getWidth() * gameMap.getBlockSize(), gameMap.getHeight() * gameMap.getBlockSize(), "PAC-MAN GAME");
     window.setGameMap(&gameMap);

@@ -53,8 +53,28 @@ queue<sf::Vector2f> GameMap::createWayTo(float x, float y, const sf::Vector2f& s
 
     auto res1 = ConvertToMapCoordinates(pathFinder.dfs(st_x, st_y, fn_x, fn_y));
     auto res2 = ConvertToMapCoordinates(pathFinder.bfs(st_x, st_y, fn_x, fn_y));
+    auto res3 = ConvertToMapCoordinates(pathFinder.greedy(st_x, st_y, fn_x, fn_y));
+    auto res4 = ConvertToMapCoordinates(pathFinder.a_star(st_x, st_y, fn_x, fn_y));
 
-    return res2;
+    return res4;
+}
+
+void GameMap::Test() const {
+    for (size_t st_x = 0; st_x < width; ++st_x) {
+        for (size_t st_y = 0; st_y < height; ++st_y) {
+            if (FIELD_MAZE[st_y][st_x] != '#')
+                for (size_t fn_x = 0; fn_x < width; ++fn_x) {
+                    for (size_t fn_y = 0; fn_y < height; ++fn_y) {
+                        if (FIELD_MAZE[fn_y][fn_x] != '#')
+                        {
+                            auto res2 = ConvertToMapCoordinates(pathFinder.bfs(st_x, st_y, fn_x, fn_y));
+                            auto res4 = ConvertToMapCoordinates(pathFinder.a_star(st_x, st_y, fn_x, fn_y));
+                            assert(res2.size() == res4.size());
+                        }
+                    }
+                }
+        }
+    }
 }
 
 queue<sf::Vector2f> GameMap::ConvertToMapCoordinates(const vector<sf::Vector2i>& way) const {
