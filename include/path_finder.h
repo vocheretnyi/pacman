@@ -5,6 +5,8 @@
 
 class Statistics;
 
+bool operator<(const sf::Vector2i& a, const sf::Vector2i& b);
+
 class PathFinder {
 public:
 
@@ -15,6 +17,10 @@ public:
     std::vector<sf::Vector2i> dfs(int st_x, int st_y, int fn_x, int fn_y) const;
 
     std::vector<sf::Vector2i> bfs(int st_x, int st_y, int fn_x, int fn_y) const;
+
+    std::vector<sf::Vector2i> greedy(int st_x, int st_y, int fn_x, int fn_y) const;
+
+    std::vector<sf::Vector2i> a_star(int st_x, int st_y, int fn_x, int fn_y) const;
 
 private:
     static const int INF = 1e9;
@@ -30,4 +36,5 @@ private:
     std::vector<sf::Vector2i>
     getWayToTargetBaseOnParent(int fn_x, int fn_y, const std::vector<std::vector<sf::Vector2i>>& parent) const;
 
+    int GetHeuristicValue(int st_x, int st_y, int fn_x, int fn_y) const;
 };

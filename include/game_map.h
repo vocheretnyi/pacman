@@ -8,6 +8,7 @@
 
 class Statistics;
 
+//
 const std::vector<std::string> FIELD_MAZE = {
         {"!#######################!"},
         {"!#          #          #!"},
@@ -35,6 +36,25 @@ const std::vector<std::string> FIELD_MAZE = {
         {"!#          #          #!"},
         {"!#######################!"},
 };
+//const std::vector<std::string> FIELD_MAZE = {
+//    {"#################"},
+//    {"#               #"},
+//    {"#               #"},
+//    {"#  ###########  #"},
+//    {"#  #         #  #"},
+//    {"#  #         #  #"},
+//    {"#  #         #  #"},
+//    {"#  #         #  #"},
+//    {"#  #         #  #"},
+//    {"#  #         #  #"},
+//    {"#  #         #  #"},
+//    {"#  #         #  #"},
+//    {"#  #         #  #"},
+//    {"#               #"},
+//    {"#               #"},
+//    {"#               #"},
+//    {"#################"},
+//};
 
 class GameMap {
 public:
@@ -49,6 +69,8 @@ public:
     const std::vector<std::vector<sf::RectangleShape>>& getRectangles() const;
 
     std::queue<sf::Vector2f> createWayTo(float x, float y, const sf::Vector2f& startPos) const;
+
+    void Test() const;
 
 private:
     const float kBlockSize = 25.0;
