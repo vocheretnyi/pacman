@@ -36,7 +36,7 @@ vector<sf::Vector2i> PathFinder::dfs(int st_x, int st_y, int fn_x, int fn_y) con
     parent[st_x][st_y] = {st_x, st_y};
     Statistics dfsStats("DFS");
 
-    bool res = dfsHelper(st_x, st_y, fn_x, fn_y, 0, used, parent, dfsStats);
+    bool res = dfsHelper(st_x, st_y, fn_x, fn_y, used, parent, dfsStats);
 
     vector<sf::Vector2i> way = getWayToTargetBaseOnParent(fn_x, fn_y, parent);
 
@@ -45,19 +45,12 @@ vector<sf::Vector2i> PathFinder::dfs(int st_x, int st_y, int fn_x, int fn_y) con
     return way;
 }
 
-bool PathFinder::dfsHelper(int st_x, int st_y, int fn_x, int fn_y, int depth, vector<vector<bool>>& used,
+bool PathFinder::dfsHelper(int st_x, int st_y, int fn_x, int fn_y, vector<vector<bool>>& used,
                            vector<vector<sf::Vector2i>>& parent, Statistics& stats) const {
     stats.increaseIterations();
     stats.addMemoryUsage(sizeof(int) * 5);
-    if (depth > 200) {
-        used[st_x][st_y] = false;
-        parent[st_x][st_y] = {st_x, st_y};
-        return false;
-    }
-//        if (used[st_x][st_y]) {
-//            return false;
-//        }
     if (fn_x == st_x && fn_y == st_y) {
+        stats.freeMemoryUsage(sizeof(int) * 5);
         return true;
     }
     for (sf::Vector2i delta : vector<sf::Vector2i>{
@@ -66,21 +59,19 @@ bool PathFinder::dfsHelper(int st_x, int st_y, int fn_x, int fn_y, int depth, ve
             {1,  0},
             {0,  1}
     }) {
-        stats.addMemoryUsage(sizeof(delta));
         int to_x = st_x + delta.x;
         int to_y = st_y + delta.y;
-        stats.addMemoryUsage(sizeof(int) * 2);
         if (canGoTo(to_x, to_y) && !used[to_x][to_y]) {
             used[to_x][to_y] = true;
-            parent[to_x][to_y] = {st_x, st_y};
-            bool res = dfsHelper(to_x, to_y, fn_x, fn_y, depth + 1, used, parent, stats);
-//                    used[to_x][to_y] = false;
-//                    parent[to_x][to_y] = {to_x, to_y};
+            bool res = dfsHelper(to_x, to_y, fn_x, fn_y, used, parent, stats);
             if (res) {
+                parent[to_x][to_y] = {st_x, st_y};
+                stats.freeMemoryUsage(sizeof(int) * 5);
                 return true;
             }
         }
     }
+    stats.freeMemoryUsage(sizeof(int) * 5);
     return false;
 }
 
@@ -100,14 +91,15 @@ vector<sf::Vector2i> PathFinder::bfs(int st_x, int st_y, int fn_x, int fn_y) con
     d[st_x][st_y] = 0;
     parent[st_x][st_y] = {st_x, st_y};
     Statistics bfsStats("BFS");
+    bfsStats.addMemoryUsage(sizeof(q.front()));
     while (!q.empty()) {
         int cur_x = q.front().x;
         int cur_y = q.front().y;
         bfsStats.increaseIterations();
+        bfsStats.freeMemoryUsage(sizeof(q.front()));
         q.pop();
-        bfsStats.addMemoryUsage(sizeof(int) * 2);
-        if (d[fn_x][fn_y] <= d[cur_x][cur_y]) {
-            continue;
+        if (cur_x == fn_x && cur_y == fn_y) {
+            break;
         }
         for (const sf::Vector2i delta : vector<sf::Vector2i>{
                 {-1, 0},
@@ -115,11 +107,8 @@ vector<sf::Vector2i> PathFinder::bfs(int st_x, int st_y, int fn_x, int fn_y) con
                 {1,  0},
                 {0,  1}
         }) {
-            bfsStats.addMemoryUsage(sizeof(delta));
             int to_x = cur_x + delta.x;
             int to_y = cur_y + delta.y;
-            bfsStats.addMemoryUsage(sizeof(int) * 2);
-//            bfsStats.increaseIterations();
             if (canGoTo(to_x, to_y)) {
                 if (d[cur_x][cur_y] + 1 < d[to_x][to_y]) {
                     d[to_x][to_y] = d[cur_x][cur_y] + 1;
@@ -160,10 +149,12 @@ vector<sf::Vector2i> PathFinder::greedy(int st_x, int st_y, int fn_x, int fn_y) 
     d[st_x][st_y] = 1;
     parent[st_x][st_y] = {st_x, st_y};
     Statistics greedyStats("GREEDY");
+    greedyStats.addMemoryUsage(sizeof(*q.begin()));
     while (!q.empty()) {
         greedyStats.increaseIterations();
         int cur_x = q.begin()->second.x;
         int cur_y = q.begin()->second.y;
+        greedyStats.freeMemoryUsage(sizeof(*q.begin()));
         q.erase(q.begin());
         if (cur_x == fn_x && cur_y == fn_y) {
             break;
@@ -183,6 +174,7 @@ vector<sf::Vector2i> PathFinder::greedy(int st_x, int st_y, int fn_x, int fn_y) 
                     d[to_x][to_y] = 1;
                     parent[to_x][to_y] = {cur_x, cur_y};
                     q.insert({value, {to_x, to_y}});
+                    greedyStats.addMemoryUsage(sizeof(*q.begin()));
                 }
             }
         }
@@ -212,10 +204,12 @@ vector<sf::Vector2i> PathFinder::a_star(int st_x, int st_y, int fn_x, int fn_y) 
     d[st_x][st_y] = 0;
     parent[st_x][st_y] = {st_x, st_y};
     Statistics aStarStats("A_STAR");
+    aStarStats.addMemoryUsage(sizeof(*q.begin()));
     while (!q.empty()) {
         aStarStats.increaseIterations();
         int cur_x = q.begin()->second.x;
         int cur_y = q.begin()->second.y;
+        aStarStats.freeMemoryUsage(sizeof(*q.begin()));
         q.erase(q.begin());
         if (cur_x == fn_x && cur_y == fn_y) {
             break;
@@ -236,6 +230,7 @@ vector<sf::Vector2i> PathFinder::a_star(int st_x, int st_y, int fn_x, int fn_y) 
                     int value = GetHeuristicValue(to_x, to_y, fn_x, fn_y);
                     parent[to_x][to_y] = {cur_x, cur_y};
                     q.insert({value + newCost, {to_x, to_y}});
+                    aStarStats.addMemoryUsage(sizeof(*q.begin()));
                 }
             }
         }

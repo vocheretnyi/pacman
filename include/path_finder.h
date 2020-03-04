@@ -30,7 +30,7 @@ private:
 
     bool canGoTo(int x, int y) const;
 
-    bool dfsHelper(int st_x, int st_y, int fn_x, int fn_y, int depth, std::vector<std::vector<bool>>& used,
+    bool dfsHelper(int st_x, int st_y, int fn_x, int fn_y, std::vector<std::vector<bool>>& used,
                    std::vector<std::vector<sf::Vector2i>>& parent, Statistics& stats) const;
 
     std::vector<sf::Vector2i>
