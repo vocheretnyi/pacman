@@ -20,7 +20,8 @@ public:
             if (event.type == sf::Event::Closed) {
                 close();
             } else if (event.type == sf::Event::MouseButtonReleased) {
-                pacMan->setWay(gameMap->createWayTo(event.touch.x, event.touch.y, pacMan->getPosition()));
+                sf::Vector2f to(event.touch.x, event.touch.y);
+                pacMan->setWay(gameMap->createWayTo(to, pacMan->getPosition()));
             }
 
         }

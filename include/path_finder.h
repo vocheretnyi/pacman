@@ -3,9 +3,9 @@
 #include <SFML/Graphics.hpp>
 #include <vector>
 
-class Statistics;
+#include "point.h"
 
-bool operator<(const sf::Vector2i& a, const sf::Vector2i& b);
+class Statistics;
 
 class PathFinder {
 public:
@@ -14,27 +14,30 @@ public:
 
     PathFinder(int _width, int _height, const std::vector<std::string>& _gameMap);
 
-    std::vector<sf::Vector2i> dfs(int st_x, int st_y, int fn_x, int fn_y) const;
+    std::vector<Point> dfs(const Point& st, const Point& fn) const;
 
-    std::vector<sf::Vector2i> bfs(int st_x, int st_y, int fn_x, int fn_y) const;
+    std::vector<Point> bfs(const Point& st, const Point& fn) const;
 
-    std::vector<sf::Vector2i> greedy(int st_x, int st_y, int fn_x, int fn_y) const;
+    std::vector<Point> greedy(const Point& st, const Point& fn) const;
 
-    std::vector<sf::Vector2i> a_star(int st_x, int st_y, int fn_x, int fn_y) const;
+    std::vector<Point> a_star(const Point& st, const Point& fn) const;
 
 private:
     static const int INF = 1e9;
+    static const std::vector<Point> neighboursDeltas;
     int width;
     int height;
     std::vector<std::string> gameMap;
 
-    bool canGoTo(int x, int y) const;
+    bool canGoTo(const Point& p) const;
 
-    bool dfsHelper(int st_x, int st_y, int fn_x, int fn_y, std::vector<std::vector<bool>>& used,
-                   std::vector<std::vector<sf::Vector2i>>& parent, Statistics& stats) const;
+    bool dfsHelper(const Point& st, const Point& fn, std::vector<std::vector<bool>>& used,
+                   std::vector<std::vector<Point>>& parent, Statistics& stats) const;
 
-    std::vector<sf::Vector2i>
-    getWayToTargetBaseOnParent(int fn_x, int fn_y, const std::vector<std::vector<sf::Vector2i>>& parent) const;
+    std::vector<Point>
+    getWayToTargetBaseOnParent(Point fn, const std::vector<std::vector<Point>>& parent) const;
 
-    int GetHeuristicValue(int st_x, int st_y, int fn_x, int fn_y) const;
+    int GetHeuristicValue(const Point& st, const Point& fn) const;
+
+    std::vector<Point> getNeighbours(const Point& p) const;
 };

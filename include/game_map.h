@@ -5,6 +5,7 @@
 #include <queue>
 
 #include "path_finder.h"
+#include "point.h"
 
 class Statistics;
 
@@ -68,7 +69,7 @@ public:
 
     const std::vector<std::vector<sf::RectangleShape>>& getRectangles() const;
 
-    std::queue<sf::Vector2f> createWayTo(float x, float y, const sf::Vector2f& startPos) const;
+    std::queue<sf::Vector2f> createWayTo(const sf::Vector2f& fn, const sf::Vector2f& st) const;
 
     void Test() const;
 
@@ -79,7 +80,7 @@ private:
     std::vector<std::vector<sf::RectangleShape> > rectangles;
     PathFinder pathFinder;
 
-    int Round(float x) const;
+    Point Round(const sf::Vector2f& p) const;
 
-    std::queue<sf::Vector2f> ConvertToMapCoordinates(const std::vector<sf::Vector2i>& way) const;
+    std::queue<sf::Vector2f> ConvertToMapCoordinates(const std::vector<Point>& way) const;
 };

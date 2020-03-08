@@ -44,31 +44,28 @@ const vector<vector<sf::RectangleShape>>& GameMap::getRectangles() const {
     return rectangles;
 }
 
-queue<sf::Vector2f> GameMap::createWayTo(float x, float y, const sf::Vector2f& startPos) const {
-    int fn_x = Round(x);
-    int fn_y = Round(y);
+queue<sf::Vector2f> GameMap::createWayTo(const sf::Vector2f& to, const sf::Vector2f& from) const {
+    Point fn = Round(to);
+    Point st = Round(from);
 
-    int st_x = Round(startPos.x);
-    int st_y = Round(startPos.y);
-
-    auto res1 = ConvertToMapCoordinates(pathFinder.dfs(st_x, st_y, fn_x, fn_y));
-    auto res2 = ConvertToMapCoordinates(pathFinder.bfs(st_x, st_y, fn_x, fn_y));
-    auto res3 = ConvertToMapCoordinates(pathFinder.greedy(st_x, st_y, fn_x, fn_y));
-    auto res4 = ConvertToMapCoordinates(pathFinder.a_star(st_x, st_y, fn_x, fn_y));
+    auto res1 = ConvertToMapCoordinates(pathFinder.dfs(st, fn));
+    auto res2 = ConvertToMapCoordinates(pathFinder.bfs(st, fn));
+    auto res3 = ConvertToMapCoordinates(pathFinder.greedy(st, fn));
+    auto res4 = ConvertToMapCoordinates(pathFinder.a_star(st, fn));
 
     return res4;
 }
 
 void GameMap::Test() const {
-    for (size_t st_x = 0; st_x < width; ++st_x) {
-        for (size_t st_y = 0; st_y < height; ++st_y) {
+    for (int st_x = 0; st_x < width; ++st_x) {
+        for (int st_y = 0; st_y < height; ++st_y) {
             if (FIELD_MAZE[st_y][st_x] != '#')
-                for (size_t fn_x = 0; fn_x < width; ++fn_x) {
-                    for (size_t fn_y = 0; fn_y < height; ++fn_y) {
+                for (int fn_x = 0; fn_x < width; ++fn_x) {
+                    for (int fn_y = 0; fn_y < height; ++fn_y) {
                         if (FIELD_MAZE[fn_y][fn_x] != '#')
                         {
-                            auto res2 = ConvertToMapCoordinates(pathFinder.bfs(st_x, st_y, fn_x, fn_y));
-                            auto res4 = ConvertToMapCoordinates(pathFinder.a_star(st_x, st_y, fn_x, fn_y));
+                            auto res2 = ConvertToMapCoordinates(pathFinder.bfs({st_x, st_y}, {fn_x, fn_y}));
+                            auto res4 = ConvertToMapCoordinates(pathFinder.a_star({st_x, st_y}, {fn_x, fn_y}));
                             assert(res2.size() == res4.size());
                         }
                     }
@@ -77,7 +74,7 @@ void GameMap::Test() const {
     }
 }
 
-queue<sf::Vector2f> GameMap::ConvertToMapCoordinates(const vector<sf::Vector2i>& way) const {
+queue<sf::Vector2f> GameMap::ConvertToMapCoordinates(const vector<Point>& way) const {
     queue<sf::Vector2f> convertedWay;
     for (const auto& point : way) {
         convertedWay.push({point.x * kBlockSize, point.y * kBlockSize});
@@ -85,6 +82,6 @@ queue<sf::Vector2f> GameMap::ConvertToMapCoordinates(const vector<sf::Vector2i>&
     return convertedWay;
 }
 
-int GameMap::Round(float x) const {
-    return static_cast<int>(x / kBlockSize);
+Point GameMap::Round(const sf::Vector2f& p) const {
+    return {static_cast<int>(p.x / kBlockSize), static_cast<int>(p.y / kBlockSize)};
 }
