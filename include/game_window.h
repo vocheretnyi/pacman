@@ -6,6 +6,7 @@
 
 #include "game_map.h"
 #include "pacman.h"
+#include "ghost.h"
 
 class GameWindow : public sf::RenderWindow {
 public:
@@ -22,6 +23,7 @@ public:
             } else if (event.type == sf::Event::MouseButtonReleased) {
                 sf::Vector2f to(event.touch.x, event.touch.y);
                 pacMan->setWay(gameMap->createWayTo(to, pacMan->getPosition()));
+//                ghost->setWay(gameMap->createWayTo(to, ghost->getPosition()));
             }
 
         }
@@ -31,6 +33,7 @@ public:
         clear();
         drawMap();
         draw(*pacMan);
+        draw(*ghost);
         display();
     }
 
@@ -50,8 +53,13 @@ public:
         gameMap = _gameMap;
     }
 
+    void setGhost(Ghost *_ghost) {
+        ghost = _ghost;
+    }
+
 private:
     const size_t kMaxFPS = 60;
     PacMan *pacMan;
     GameMap *gameMap;
+    Ghost *ghost;
 };

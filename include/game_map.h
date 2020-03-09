@@ -73,6 +73,12 @@ public:
 
     void Test() const;
 
+    Point convertToMapCoordinates(const sf::Vector2f& p) const;
+
+    sf::Vector2f convertToWorldCoordinates(const Point& p) const;
+
+    const PathFinder& getPathFinder() const;
+
 private:
     const float kBlockSize = 25.0;
     size_t width;
@@ -80,7 +86,5 @@ private:
     std::vector<std::vector<sf::RectangleShape> > rectangles;
     PathFinder pathFinder;
 
-    Point Round(const sf::Vector2f& p) const;
-
-    std::queue<sf::Vector2f> ConvertToMapCoordinates(const std::vector<Point>& way) const;
+    std::queue<sf::Vector2f> ConvertWayToWorldCoordinates(const std::vector<Point>& way) const;
 };

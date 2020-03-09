@@ -45,13 +45,13 @@ const vector<vector<sf::RectangleShape>>& GameMap::getRectangles() const {
 }
 
 queue<sf::Vector2f> GameMap::createWayTo(const sf::Vector2f& to, const sf::Vector2f& from) const {
-    Point fn = Round(to);
-    Point st = Round(from);
+    Point fn = convertToMapCoordinates(to);
+    Point st = convertToMapCoordinates(from);
 
-    auto res1 = ConvertToMapCoordinates(pathFinder.dfs(st, fn));
-    auto res2 = ConvertToMapCoordinates(pathFinder.bfs(st, fn));
-    auto res3 = ConvertToMapCoordinates(pathFinder.greedy(st, fn));
-    auto res4 = ConvertToMapCoordinates(pathFinder.a_star(st, fn));
+    auto res1 = ConvertWayToWorldCoordinates(pathFinder.dfs(st, fn));
+    auto res2 = ConvertWayToWorldCoordinates(pathFinder.bfs(st, fn));
+    auto res3 = ConvertWayToWorldCoordinates(pathFinder.greedy(st, fn));
+    auto res4 = ConvertWayToWorldCoordinates(pathFinder.a_star(st, fn));
 
     return res4;
 }
@@ -64,8 +64,8 @@ void GameMap::Test() const {
                     for (int fn_y = 0; fn_y < height; ++fn_y) {
                         if (FIELD_MAZE[fn_y][fn_x] != '#')
                         {
-                            auto res2 = ConvertToMapCoordinates(pathFinder.bfs({st_x, st_y}, {fn_x, fn_y}));
-                            auto res4 = ConvertToMapCoordinates(pathFinder.a_star({st_x, st_y}, {fn_x, fn_y}));
+                            auto res2 = ConvertWayToWorldCoordinates(pathFinder.bfs({st_x, st_y}, {fn_x, fn_y}));
+                            auto res4 = ConvertWayToWorldCoordinates(pathFinder.a_star({st_x, st_y}, {fn_x, fn_y}));
                             assert(res2.size() == res4.size());
                         }
                     }
@@ -74,14 +74,22 @@ void GameMap::Test() const {
     }
 }
 
-queue<sf::Vector2f> GameMap::ConvertToMapCoordinates(const vector<Point>& way) const {
+queue<sf::Vector2f> GameMap::ConvertWayToWorldCoordinates(const vector<Point>& way) const {
     queue<sf::Vector2f> convertedWay;
     for (const auto& point : way) {
-        convertedWay.push({point.x * kBlockSize, point.y * kBlockSize});
+        convertedWay.push(convertToWorldCoordinates(point));
     }
     return convertedWay;
 }
 
-Point GameMap::Round(const sf::Vector2f& p) const {
+Point GameMap::convertToMapCoordinates(const sf::Vector2f& p) const {
     return {static_cast<int>(p.x / kBlockSize), static_cast<int>(p.y / kBlockSize)};
+}
+
+sf::Vector2f GameMap::convertToWorldCoordinates(const Point& p) const {
+    return {p.x * kBlockSize, p.y * kBlockSize};
+}
+
+const PathFinder& GameMap::getPathFinder() const {
+    return pathFinder;
 }

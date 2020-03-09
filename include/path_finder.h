@@ -22,6 +22,8 @@ public:
 
     std::vector<Point> a_star(const Point& st, const Point& fn) const;
 
+    std::vector<Point> getNeighbours(const Point& p) const;
+
 private:
     static const int INF = 1e9;
     static const std::vector<Point> neighboursDeltas;
@@ -38,6 +40,4 @@ private:
     getWayToTargetBaseOnParent(Point fn, const std::vector<std::vector<Point>>& parent) const;
 
     int GetHeuristicValue(const Point& st, const Point& fn) const;
-
-    std::vector<Point> getNeighbours(const Point& p) const;
 };
