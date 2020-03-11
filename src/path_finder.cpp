@@ -1,32 +1,32 @@
 #include "path_finder.h"
 
-#include <SFML/Graphics.hpp>
 #include <iostream>
 #include <vector>
-#include <string>
 #include <queue>
 #include <set>
 #include <algorithm>
 
+#include "game_map.h"
 #include "statistics.h"
+#include "point.h"
 
 using namespace std;
 
-const vector<Point> PathFinder::neighboursDeltas = {{-1, 0},
-                                                    {0,  -1},
-                                                    {1,  0},
-                                                    {0,  1}};
+static const int INF = 1e9;
 
-PathFinder::PathFinder() : width(0), height(0), gameMap({}) {}
+int GetHeuristicValue(const Point& st, const Point& fn);
 
-PathFinder::PathFinder(int _width, int _height, const vector<string>& _gameMap)
-        : width(_width), height(_height), gameMap(_gameMap) {}
+vector<Point> getWayToTargetBaseOnParent(Point fn, const vector<vector<Point>>& parent);
 
-bool PathFinder::canGoTo(const Point& p) const {
-    return p.x >= 0 && p.y >= 0 && p.x < width && p.y < height && gameMap[p.y][p.x] == ' ';
-}
+bool dfsHelper(const Point& st, const Point& fn, vector<vector<bool>>& used,
+               vector<vector<Point>>& parent, Statistics& stats, const GameMap& gameMap);
 
-vector<Point> PathFinder::dfs(const Point& st, const Point& fn) const {
+
+namespace PathFinder {
+
+vector<Point> dfs(const Point& st, const Point& fn, const GameMap& gameMap) {
+    size_t width = gameMap.getWidth();
+    size_t height = gameMap.getHeight();
     vector<vector<bool>> used(width);
     vector<vector<Point>> parent(width);
     for (int i = 0; i < width; ++i) {
@@ -41,7 +41,7 @@ vector<Point> PathFinder::dfs(const Point& st, const Point& fn) const {
     parent[st.x][st.y] = st;
     Statistics dfsStats("DFS");
 
-    bool res = dfsHelper(st, fn, used, parent, dfsStats);
+    bool res = dfsHelper(st, fn, used, parent, dfsStats, gameMap);
 
     vector<Point> way = getWayToTargetBaseOnParent(fn, parent);
 
@@ -50,30 +50,9 @@ vector<Point> PathFinder::dfs(const Point& st, const Point& fn) const {
     return way;
 }
 
-bool PathFinder::dfsHelper(const Point& st, const Point& fn, vector<vector<bool>>& used,
-                           vector<vector<Point>>& parent, Statistics& stats) const {
-    stats.increaseIterations();
-    stats.addMemoryUsage(sizeof(int) * 5);
-    if (st == fn) {
-        stats.freeMemoryUsage(sizeof(int) * 5);
-        return true;
-    }
-    for (const auto& to : getNeighbours(st)) {
-        if (!used[to.x][to.y]) {
-            used[to.x][to.y] = true;
-            bool res = dfsHelper(to, fn, used, parent, stats);
-            if (res) {
-                parent[to.x][to.y] = st;
-                stats.freeMemoryUsage(sizeof(int) * 5);
-                return true;
-            }
-        }
-    }
-    stats.freeMemoryUsage(sizeof(int) * 5);
-    return false;
-}
-
-vector<Point> PathFinder::bfs(const Point& st, const Point& fn) const {
+vector<Point> bfs(const Point& st, const Point& fn, const GameMap& gameMap) {
+    size_t width = gameMap.getWidth();
+    size_t height = gameMap.getHeight();
     queue<Point> q;
     q.push(st);
     vector<vector<int>> d(width);
@@ -98,7 +77,7 @@ vector<Point> PathFinder::bfs(const Point& st, const Point& fn) const {
         if (cur == fn) {
             break;
         }
-        for (const auto& to : getNeighbours(cur)) {
+        for (const auto& to : gameMap.getNeighbours(cur)) {
             if (d[cur.x][cur.y] + 1 < d[to.x][to.y]) {
                 d[to.x][to.y] = d[cur.x][cur.y] + 1;
                 parent[to.x][to.y] = cur;
@@ -115,7 +94,9 @@ vector<Point> PathFinder::bfs(const Point& st, const Point& fn) const {
     return way;
 }
 
-vector<Point> PathFinder::greedy(const Point& st, const Point& fn) const {
+vector<Point> greedy(const Point& st, const Point& fn, const GameMap& gameMap) {
+    size_t width = gameMap.getWidth();
+    size_t height = gameMap.getHeight();
     set<pair<int, Point>> q;
     q.insert({GetHeuristicValue(st, fn), st});
     vector<vector<int>> d(width);
@@ -140,7 +121,7 @@ vector<Point> PathFinder::greedy(const Point& st, const Point& fn) const {
         if (cur == fn) {
             break;
         }
-        for (const auto& to : getNeighbours(cur)) {
+        for (const auto& to : gameMap.getNeighbours(cur)) {
             if (!d[to.x][to.y]) {
                 int value = GetHeuristicValue(to, fn);
                 d[to.x][to.y] = 1;
@@ -159,7 +140,9 @@ vector<Point> PathFinder::greedy(const Point& st, const Point& fn) const {
 
 }
 
-vector<Point> PathFinder::a_star(const Point& st, const Point& fn) const {
+vector<Point> a_star(const Point& st, const Point& fn, const GameMap& gameMap) {
+    size_t width = gameMap.getWidth();
+    size_t height = gameMap.getHeight();
     set<pair<int, Point>> q;
     q.insert({GetHeuristicValue(st, fn), st});
     vector<vector<int>> d(width);
@@ -184,7 +167,7 @@ vector<Point> PathFinder::a_star(const Point& st, const Point& fn) const {
         if (cur == fn) {
             break;
         }
-        for (const auto& to : getNeighbours(cur)) {
+        for (const auto& to : gameMap.getNeighbours(cur)) {
             int newCost = d[cur.x][cur.y] + 1;
             if (newCost < d[to.x][to.y]) {
                 d[to.x][to.y] = newCost;
@@ -203,8 +186,36 @@ vector<Point> PathFinder::a_star(const Point& st, const Point& fn) const {
     return way;
 }
 
-vector<Point>
-PathFinder::getWayToTargetBaseOnParent(Point fn, const vector<vector<Point>>& parent) const {
+} // ns PathFinder
+
+int GetHeuristicValue(const Point& st, const Point& fn) {
+    return abs(st.x - fn.x) + abs(st.y - fn.y);
+}
+
+bool dfsHelper(const Point& st, const Point& fn, vector<vector<bool>>& used,
+               vector<vector<Point>>& parent, Statistics& stats, const GameMap& gameMap) {
+    stats.increaseIterations();
+    stats.addMemoryUsage(sizeof(int) * 5);
+    if (st == fn) {
+        stats.freeMemoryUsage(sizeof(int) * 5);
+        return true;
+    }
+    for (const auto& to : gameMap.getNeighbours(st)) {
+        if (!used[to.x][to.y]) {
+            used[to.x][to.y] = true;
+            bool res = dfsHelper(to, fn, used, parent, stats, gameMap);
+            if (res) {
+                parent[to.x][to.y] = st;
+                stats.freeMemoryUsage(sizeof(int) * 5);
+                return true;
+            }
+        }
+    }
+    stats.freeMemoryUsage(sizeof(int) * 5);
+    return false;
+}
+
+vector<Point> getWayToTargetBaseOnParent(Point fn, const vector<vector<Point>>& parent) {
     vector<Point> reversedWay;
 
     while (parent[fn.x][fn.y] != fn) {
@@ -215,23 +226,4 @@ PathFinder::getWayToTargetBaseOnParent(Point fn, const vector<vector<Point>>& pa
     reverse(reversedWay.begin(), reversedWay.end());
 
     return reversedWay;
-}
-
-int PathFinder::GetHeuristicValue(const Point& st, const Point& fn) const {
-    return abs(st.x - fn.x) + abs(st.y - fn.y);
-}
-
-std::vector<Point> PathFinder::getNeighbours(const Point& cur) const {
-    std::vector<Point> res;
-    for (const Point& delta : neighboursDeltas) {
-        Point to = cur + delta;
-        if (canGoTo(to)) {
-            res.push_back(to);
-        }
-    }
-    return res;
-}
-
-bool operator<(const Point& a, const Point& b) {
-    return a.x < b.x || (a.x == b.x && a.y < b.y);
 }

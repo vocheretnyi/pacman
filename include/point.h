@@ -35,7 +35,7 @@ struct Point  {
         return !(*this == other);
     }
 
-    bool operator < (const Point& other)  {
+    bool operator < (const Point& other) const {
         return x < other.x || (x == other.x && y < other.y);
     }
 };

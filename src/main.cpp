@@ -5,12 +5,15 @@
 #include "game_map.h"
 #include "ghost.h"
 #include "minimax.h"
+#include "point.h"
 
-const std::string PACMAN_TEXTURE = "../resources/pacman.png";
-const std::string GHOST_TEXTURE = "../resources/ghost-blue.png";
+static const char* PACMAN_TEXTURE = "../resources/pacman.png";
+static const char* GHOST_TEXTURE = "../resources/ghost-blue.png";
+static const char* LEVEL0_PATH_FILENAME = "../levels/level0.txt";
+static const char* LEVEL1_PATH_FILENAME = "../levels/level1.txt";
 
 int main() {
-    GameMap gameMap;
+    GameMap gameMap(LEVEL1_PATH_FILENAME);
     GameWindow window(gameMap.getWidth() * gameMap.getBlockSize(), gameMap.getHeight() * gameMap.getBlockSize(), "PAC-MAN GAME");
     PacMan pacMan(PACMAN_TEXTURE,  gameMap.getBlockSize() / 2.0, 7 * 25, 3 * 25);
     Ghost ghost(GHOST_TEXTURE, {gameMap.getBlockSize(), gameMap.getBlockSize()}, 50, 75);
@@ -49,8 +52,6 @@ int main() {
     if (lose) {
         std::cout << "PACMAN LOSE\n";
     }
-
-    std::cin.ignore().get();
 
     return 0;
 }

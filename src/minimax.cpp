@@ -12,7 +12,8 @@ using namespace std;
 Point MiniMax::GetDecision(const Ghost& ghost, const PacMan& pacMan, const GameMap& gameMap) {
     auto ghostCoord = gameMap.convertToMapCoordinates(ghost.getPosition());
     auto pacmanCoord = gameMap.convertToMapCoordinates(pacMan.getPosition());
-    auto neighbours = gameMap.getPathFinder().getNeighbours(ghostCoord);
+    auto neighbours = gameMap.getNeighbours(ghostCoord);
+
     assert(!neighbours.empty());
     int rnd = rand() % (neighbours.size());
     return neighbours[rnd];

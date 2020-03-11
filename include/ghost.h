@@ -8,8 +8,6 @@ class Ghost : public sf::RectangleShape {
 public:
     Ghost(std::string ghostTexture, const sf::Vector2f& size, double positionX = 0.0, double positionY = 0.0);
 
-//    void setWay(const std::queue<sf::Vector2f>& way);
-
     void setTarget(sf::Vector2f target);
 
     void update(float elapsedTime);

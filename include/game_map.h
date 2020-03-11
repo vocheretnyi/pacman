@@ -4,62 +4,12 @@
 #include <vector>
 #include <queue>
 
-#include "path_finder.h"
-#include "point.h"
-
 class Statistics;
-
-//
-const std::vector<std::string> FIELD_MAZE = {
-        {"!#######################!"},
-        {"!#          #          #!"},
-        {"!# ## ##### # ##### ## #!"},
-        {"!#                     #!"},
-        {"!# ## # ######### # ## #!"},
-        {"!#    #     #     #    #!"},
-        {"!#### ##### # ##### ####!"},
-        {"!!!!# #           # #!!!!"},
-        {"##### # # ##### # # #####"},
-        {"#       # #   # #       #"},
-        {"##### # # ##### # # #####"},
-        {"!!!!# #           # #!!!!"},
-        {"!#### # ######### # ####!"},
-        {"!#          #          #!"},
-        {"!# ## ##### # ##### ## #!"},
-        {"!#  #               #  #!"},
-        {"!## # # ######### # #  #!"},
-        {"!#    #     #     #    #!"},
-        {"!# ####### ### ####### #!"},
-        {"!# #     #     #     # #!"},
-        {"!# # ### ## # ## ### # #!"},
-        {"!# # #      #      # # #!"},
-        {"!# # # #### # #### # # #!"},
-        {"!#          #          #!"},
-        {"!#######################!"},
-};
-//const std::vector<std::string> FIELD_MAZE = {
-//    {"#################"},
-//    {"#               #"},
-//    {"#               #"},
-//    {"#  ###########  #"},
-//    {"#  #         #  #"},
-//    {"#  #         #  #"},
-//    {"#  #         #  #"},
-//    {"#  #         #  #"},
-//    {"#  #         #  #"},
-//    {"#  #         #  #"},
-//    {"#  #         #  #"},
-//    {"#  #         #  #"},
-//    {"#  #         #  #"},
-//    {"#               #"},
-//    {"#               #"},
-//    {"#               #"},
-//    {"#################"},
-//};
+class Point;
 
 class GameMap {
 public:
-    GameMap();
+    GameMap(const std::string& mapFilePathName);
 
     size_t getWidth() const;
 
@@ -71,20 +21,28 @@ public:
 
     std::queue<sf::Vector2f> createWayTo(const sf::Vector2f& fn, const sf::Vector2f& st) const;
 
-    void Test() const;
-
     Point convertToMapCoordinates(const sf::Vector2f& p) const;
 
     sf::Vector2f convertToWorldCoordinates(const Point& p) const;
 
-    const PathFinder& getPathFinder() const;
+    bool isWall(const Point& p) const;
+
+    bool isFree(const Point& p) const;
+
+    bool isCookie(const Point& p) const;
+
+    bool isRoad(const Point& p) const;
+
+    std::vector<Point> getNeighbours(const Point& p) const;
 
 private:
     const float kBlockSize = 25.0;
     size_t width;
     size_t height;
-    std::vector<std::vector<sf::RectangleShape> > rectangles;
-    PathFinder pathFinder;
+    std::vector<std::vector<sf::RectangleShape>> rectangles;
+    std::vector<std::string> fieldMaze;
+
+    bool canGoTo(const Point& p) const;
 
     std::queue<sf::Vector2f> ConvertWayToWorldCoordinates(const std::vector<Point>& way) const;
 };

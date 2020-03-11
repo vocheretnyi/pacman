@@ -3,27 +3,54 @@
 #include <SFML/Graphics.hpp>
 #include <vector>
 #include <queue>
+#include <fstream>
+#include <iostream>
+#include <cassert>
 
-#include "statistics.h"
 #include "path_finder.h"
+#include "point.h"
 
 using namespace std;
 
-GameMap::GameMap() {
-    width = FIELD_MAZE[0].size();
-    height = FIELD_MAZE.size();
-    pathFinder = PathFinder(width, height, FIELD_MAZE);
+static const sf::Color WALL_COLOR = sf::Color(52, 93, 199);
+static const sf::Color ROAD_COLOR = sf::Color(40, 40, 40);
+static const sf::Color COOKIE_COLOR = sf::Color(255, 255, 255);
+
+static const char WALL_MARKER = '#';
+static const char UNREACHABLE_MARKER = '!';
+static const char ROAD_MARKER = ' ';
+static const char COOKIE_MARKER = '.';
+
+const vector<Point> neighboursDeltas = {{-1, 0}, {0,  -1}, {1,  0}, {0,  1}};
+
+static const sf::Color& getCorrectColor(char ch) {
+    if (ch == WALL_MARKER) {
+        return WALL_COLOR;
+    } else if (ch == ROAD_MARKER || ch == UNREACHABLE_MARKER) {
+        return ROAD_COLOR;
+    } else if (ch == COOKIE_MARKER) {
+        return COOKIE_COLOR;
+    }
+    assert(false);
+    return sf::Color::Black;
+}
+
+GameMap::GameMap(const string& mapFilePathName) {
+    ifstream in(mapFilePathName);
+    in >> width >> height;
+    in.ignore();
+    fieldMaze.resize(height);
+    for (string& line : fieldMaze) {
+        getline(in, line);
+    }
+
     rectangles.resize(width);
     for (int x = 0; x < width; ++x) {
         rectangles[x].resize(height);
         for (int y = 0; y < height; ++y) {
             rectangles[x][y].setPosition(x * kBlockSize, y * kBlockSize);
             rectangles[x][y].setSize(sf::Vector2f{kBlockSize, kBlockSize});
-            rectangles[x][y].setFillColor(
-                    FIELD_MAZE[y][x] == '#'
-                    ? sf::Color(52, 93, 199)
-                    : sf::Color(40, 40, 40)
-            ); // TODO: change
+            rectangles[x][y].setFillColor(getCorrectColor(fieldMaze[y][x]));
         }
     }
 }
@@ -48,30 +75,23 @@ queue<sf::Vector2f> GameMap::createWayTo(const sf::Vector2f& to, const sf::Vecto
     Point fn = convertToMapCoordinates(to);
     Point st = convertToMapCoordinates(from);
 
-    auto res1 = ConvertWayToWorldCoordinates(pathFinder.dfs(st, fn));
-    auto res2 = ConvertWayToWorldCoordinates(pathFinder.bfs(st, fn));
-    auto res3 = ConvertWayToWorldCoordinates(pathFinder.greedy(st, fn));
-    auto res4 = ConvertWayToWorldCoordinates(pathFinder.a_star(st, fn));
+    auto res1 = ConvertWayToWorldCoordinates(PathFinder::dfs(st, fn, *this));
+    auto res2 = ConvertWayToWorldCoordinates(PathFinder::bfs(st, fn, *this));
+    auto res3 = ConvertWayToWorldCoordinates(PathFinder::greedy(st, fn, *this));
+    auto res4 = ConvertWayToWorldCoordinates(PathFinder::a_star(st, fn, *this));
 
     return res4;
 }
 
-void GameMap::Test() const {
-    for (int st_x = 0; st_x < width; ++st_x) {
-        for (int st_y = 0; st_y < height; ++st_y) {
-            if (FIELD_MAZE[st_y][st_x] != '#')
-                for (int fn_x = 0; fn_x < width; ++fn_x) {
-                    for (int fn_y = 0; fn_y < height; ++fn_y) {
-                        if (FIELD_MAZE[fn_y][fn_x] != '#')
-                        {
-                            auto res2 = ConvertWayToWorldCoordinates(pathFinder.bfs({st_x, st_y}, {fn_x, fn_y}));
-                            auto res4 = ConvertWayToWorldCoordinates(pathFinder.a_star({st_x, st_y}, {fn_x, fn_y}));
-                            assert(res2.size() == res4.size());
-                        }
-                    }
-                }
+std::vector<Point> GameMap::getNeighbours(const Point& cur) const {
+    std::vector<Point> res;
+    for (const Point& delta : neighboursDeltas) {
+        Point to = cur + delta;
+        if (canGoTo(to)) {
+            res.push_back(to);
         }
     }
+    return res;
 }
 
 queue<sf::Vector2f> GameMap::ConvertWayToWorldCoordinates(const vector<Point>& way) const {
@@ -90,6 +110,22 @@ sf::Vector2f GameMap::convertToWorldCoordinates(const Point& p) const {
     return {p.x * kBlockSize, p.y * kBlockSize};
 }
 
-const PathFinder& GameMap::getPathFinder() const {
-    return pathFinder;
+bool GameMap::isWall(const Point& p) const {
+    return fieldMaze[p.y][p.x] == WALL_MARKER;
+}
+
+bool GameMap::isCookie(const Point& p) const {
+    return fieldMaze[p.y][p.x] == COOKIE_MARKER;
+}
+
+bool GameMap::isRoad(const Point& p) const {
+    return fieldMaze[p.y][p.x] == ROAD_MARKER;
+}
+
+bool GameMap::isFree(const Point& p) const {
+    return fieldMaze[p.y][p.x] == ROAD_MARKER || fieldMaze[p.y][p.x] == COOKIE_MARKER;
+}
+
+bool GameMap::canGoTo(const Point& p) const {
+    return p.x >= 0 && p.y >= 0 && p.x < width && p.y < height && isFree(p);
 }
