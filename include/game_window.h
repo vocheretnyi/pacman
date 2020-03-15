@@ -23,7 +23,7 @@ public:
             } else if (event.type == sf::Event::MouseButtonReleased) {
                 sf::Vector2f to(event.touch.x, event.touch.y);
                 pacMan->setWay(gameMap->createWayTo(to, pacMan->getPosition()));
-//                ghost->setWay(gameMap->createWayTo(to, ghost->getPosition()));
+//                ghost->setWay(gameMap->createWay<To(to, ghost->getPosition()));
             }
 
         }
@@ -34,14 +34,23 @@ public:
         drawMap();
         draw(*pacMan);
         draw(*ghost);
+        drawCookies();
         display();
     }
 
     void drawMap() {
+        const auto& rect = gameMap->getRectangles();
         for (int x = 0; x < gameMap->getWidth(); ++x) {
             for (int y = 0; y < gameMap->getHeight(); ++y) {
-                draw(gameMap->getRectangles()[x][y]);
+                draw(rect[x][y]);
             }
+        }
+    }
+
+    void drawCookies() {
+        const auto& cookies = gameMap->getCookies();
+        for (const auto& cookie : cookies) {
+            draw(cookie);
         }
     }
 

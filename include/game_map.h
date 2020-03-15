@@ -5,6 +5,7 @@
 #include <queue>
 
 class Statistics;
+class PacMan;
 class Point;
 
 class GameMap {
@@ -35,12 +36,20 @@ public:
 
     std::vector<Point> getNeighbours(const Point& p) const;
 
+    const std::vector<sf::RectangleShape>& getCookies() const;
+
+    bool checkPacmanAtCookie(const PacMan& pacman);
+
+    void eatCookie(const Point& p);
+
 private:
     const float kBlockSize = 25.0;
     size_t width;
     size_t height;
     std::vector<std::vector<sf::RectangleShape>> rectangles;
     std::vector<std::string> fieldMaze;
+    sf::Texture cookieTexture;
+    std::vector<sf::RectangleShape> cookies;
 
     bool canGoTo(const Point& p) const;
 

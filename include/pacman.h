@@ -3,17 +3,19 @@
 #include <SFML/Graphics.hpp>
 #include <queue>
 
-class PacMan : public sf::CircleShape {
+#include "Monster.h"
+
+class PacMan : public Monster {
 public:
-    PacMan(std::string pacmanTexture, double radius, double positionX = 0.0, double positionY = 0.0);
+    PacMan(const std::string& pacmanTexture, const sf::Vector2f& size, const sf::Vector2f& coord);
 
     void setWay(const std::queue<sf::Vector2f>& way);
 
-    void update(float elapsedTime);
+    void update(float elapsedTime) override;
+
+    void eatCookie();
 
 private:
-    const float kSpeed = 150.0; // pixels per second
-    sf::Vector2f targetPoint = {-1, -1};
     std::queue<sf::Vector2f> way;
-    sf::Texture texture;
+    size_t cntCookies;
 };

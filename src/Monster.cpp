@@ -1,17 +1,18 @@
-#include "ghost.h"
+#include "Monster.h"
 
 #include <SFML/Graphics.hpp>
 
-static const sf::IntRect FRAME_EYES_LEFT(0, 0, 32, 32);
-static const sf::IntRect FRAME_EYES_CENTER(32, 0, 32, 32);
-static const sf::IntRect FRAME_EYES_RIGHT(64, 0, 32, 32);
-
-Ghost::Ghost(const std::string& ghostTexture, const sf::Vector2f& size, const sf::Vector2f& coord)
-        : Monster(ghostTexture, size, coord, MonsterType::GHOST) {
-    setTextureRect(FRAME_EYES_CENTER);
+Monster::Monster(const std::string& _texture, const sf::Vector2f& size, const sf::Vector2f& coord,
+                 MonsterType _monsterType)
+        : sf::RectangleShape(size), monsterType(_monsterType) {
+    setPosition(coord);
+    texture.loadFromFile(_texture);
+    setTexture(&texture);
+    isWaiting_ = true;
+    targetPoint = {-1, -1};
 }
 
-void Ghost::update(float elapsedTime) {
+void Monster::update(float elapsedTime) {
     if (targetPoint == sf::Vector2f{-1, -1}) {
         return;
     }
@@ -24,28 +25,24 @@ void Ghost::update(float elapsedTime) {
     float newY = y;
 
     if (x < targetPoint.x) {
-        setTextureRect(FRAME_EYES_RIGHT);
         if (x + step > targetPoint.x) {
             newX = targetPoint.x;
         } else {
             newX = x + step;
         }
     } else if (newX > targetPoint.x) {
-        setTextureRect(FRAME_EYES_LEFT);
         if (newX - step < targetPoint.x) {
             newX = targetPoint.x;
         } else {
             newX = x - step;
         }
     } else if (y < targetPoint.y) {
-        setTextureRect(FRAME_EYES_CENTER);
         if (y + step > targetPoint.y) {
             newY = targetPoint.y;
         } else {
             newY = y + step;
         }
     } else if (y > targetPoint.y) {
-        setTextureRect(FRAME_EYES_CENTER);
         if (y - step < targetPoint.y) {
             newY = targetPoint.y;
         } else {
@@ -54,9 +51,24 @@ void Ghost::update(float elapsedTime) {
     }
 
     if (newX == targetPoint.x && newY == targetPoint.y) {
-        setTextureRect(FRAME_EYES_CENTER);
         isWaiting_ = true;
     }
 
     setPosition(newX, newY);
 }
+
+bool Monster::isWaiting() const {
+    return isWaiting_;
+}
+
+void Monster::setTarget(sf::Vector2f target) {
+    targetPoint = target;
+    isWaiting_ = false;
+}
+
+MonsterType Monster::getMonsterType() const {
+    return monsterType;
+}
+
+
+

@@ -1,23 +1,12 @@
 #pragma once
 
 #include <SFML/Graphics.hpp>
-#include <queue>
-#include <functional>
 
-class Ghost : public sf::RectangleShape {
+#include "Monster.h"
+
+class Ghost : public Monster {
 public:
-    Ghost(std::string ghostTexture, const sf::Vector2f& size, double positionX = 0.0, double positionY = 0.0);
+    Ghost(const std::string& ghostTexture, const sf::Vector2f& size, const sf::Vector2f& coord);
 
-    void setTarget(sf::Vector2f target);
-
-    void update(float elapsedTime);
-
-    bool isWaiting() const;
-
-private:
-    const float kSpeed = 150.0; // pixels per second
-    sf::Vector2f targetPoint = {-1, -1};
-    std::queue<sf::Vector2f> way;
-    sf::Texture texture;
-    bool isWaiting_;
+    void update(float elapsedTime) override;
 };

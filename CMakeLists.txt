@@ -16,7 +16,7 @@ set(CMAKE_CXX_STANDARD 17)
 
 include_directories(include)
 
-add_executable(pac_man src/main.cpp src/game_map.cpp src/pacman.cpp src/path_finder.cpp src/ghost.cpp src/minimax.cpp)
+add_executable(pac_man src/main.cpp src/game_map.cpp src/pacman.cpp src/path_finder.cpp src/ghost.cpp src/minimax.cpp src/Monster.cpp)
 
 target_link_libraries(pac_man sfml-graphics sfml-window sfml-system)
 
