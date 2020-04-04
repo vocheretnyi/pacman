@@ -3,8 +3,8 @@
 #include <SFML/Graphics.hpp>
 #include <queue>
 
-PacMan::PacMan(const std::string& pacmanTexture, const sf::Vector2f& size, const sf::Vector2f& coord)
-        : Monster(pacmanTexture, size, coord, MonsterType::PACMAN) {
+PacMan::PacMan(const std::string& pathToTexture, const sf::Vector2f& size, const sf::Vector2f& coord, float speed)
+        : Monster(pathToTexture, size, coord, MonsterType::PACMAN, speed), cntCookies(0) {
 }
 
 void PacMan::setWay(const std::queue<sf::Vector2f>& way) {
@@ -57,8 +57,10 @@ void PacMan::update(float elapsedTime) {
         if (!way.empty()) {
             targetPoint = way.front();
             way.pop();
+            isWaiting_ = false;
         } else {
             targetPoint = {-1, -1};
+            isWaiting_ = true;
         }
     }
 
@@ -67,4 +69,8 @@ void PacMan::update(float elapsedTime) {
 
 void PacMan::eatCookie() {
     cntCookies++;
+}
+
+size_t PacMan::getCookieCount() const {
+    return cntCookies;
 }

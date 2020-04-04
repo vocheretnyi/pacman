@@ -3,17 +3,19 @@
 #include <SFML/Graphics.hpp>
 #include <queue>
 
-#include "Monster.h"
+#include "monster.h"
 
 class PacMan : public Monster {
 public:
-    PacMan(const std::string& pacmanTexture, const sf::Vector2f& size, const sf::Vector2f& coord);
+    PacMan(const std::string& pathToTexture, const sf::Vector2f& size, const sf::Vector2f& coord, float speed);
 
     void setWay(const std::queue<sf::Vector2f>& way);
 
     void update(float elapsedTime) override;
 
     void eatCookie();
+
+    size_t getCookieCount() const;
 
 private:
     std::queue<sf::Vector2f> way;

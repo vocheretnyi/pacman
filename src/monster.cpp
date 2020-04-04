@@ -1,12 +1,13 @@
-#include "Monster.h"
+#include "monster.h"
 
 #include <SFML/Graphics.hpp>
+#include <cassert>
 
-Monster::Monster(const std::string& _texture, const sf::Vector2f& size, const sf::Vector2f& coord,
-                 MonsterType _monsterType)
-        : sf::RectangleShape(size), monsterType(_monsterType) {
+Monster::Monster(const std::string& pathToTexture, const sf::Vector2f& size, const sf::Vector2f& coord,
+                 MonsterType _monsterType, float speed)
+        : sf::RectangleShape(size), monsterType(_monsterType), kSpeed(speed) {
     setPosition(coord);
-    texture.loadFromFile(_texture);
+    texture.loadFromFile(pathToTexture);
     setTexture(&texture);
     isWaiting_ = true;
     targetPoint = {-1, -1};
@@ -69,6 +70,3 @@ void Monster::setTarget(sf::Vector2f target) {
 MonsterType Monster::getMonsterType() const {
     return monsterType;
 }
-
-
-

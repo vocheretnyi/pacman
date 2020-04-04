@@ -11,7 +11,9 @@ enum class MonsterType {
 
 class Monster : public sf::RectangleShape {
 public:
-    Monster(const std::string& _texture, const sf::Vector2f& size, const sf::Vector2f& coord, MonsterType _monsterType = MonsterType::MONSTER);
+
+    Monster(const std::string& pathToTexture, const sf::Vector2f& size, const sf::Vector2f& coord,
+            MonsterType _monsterType = MonsterType::MONSTER, float speed = 150.0f);
 
     void setTarget(sf::Vector2f target);
 
@@ -22,7 +24,7 @@ public:
     MonsterType getMonsterType() const;
 
 protected:
-    const float kSpeed = 150.0; // pixels per second
+    float kSpeed;
     sf::Vector2f targetPoint = {-1, -1};
     sf::Texture texture;
     bool isWaiting_;

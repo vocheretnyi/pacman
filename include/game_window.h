@@ -23,9 +23,7 @@ public:
             } else if (event.type == sf::Event::MouseButtonReleased) {
                 sf::Vector2f to(event.touch.x, event.touch.y);
                 pacMan->setWay(gameMap->createWayTo(to, pacMan->getPosition()));
-//                ghost->setWay(gameMap->createWay<To(to, ghost->getPosition()));
             }
-
         }
     }
 
@@ -33,23 +31,28 @@ public:
         clear();
         drawMap();
         draw(*pacMan);
-        draw(*ghost);
+        drawGhosts();
         drawCookies();
         display();
     }
 
+    void drawGhosts() {
+        for (const Ghost& ghost : *ghosts_) {
+            draw(ghost);
+        }
+    }
+
     void drawMap() {
-        const auto& rect = gameMap->getRectangles();
-        for (int x = 0; x < gameMap->getWidth(); ++x) {
-            for (int y = 0; y < gameMap->getHeight(); ++y) {
-                draw(rect[x][y]);
+        const auto& cells = gameMap->getCells();
+        for (const auto& column : cells) {
+            for (const auto& cell : column) {
+                draw(cell.rectangle);
             }
         }
     }
 
     void drawCookies() {
-        const auto& cookies = gameMap->getCookies();
-        for (const auto& cookie : cookies) {
+        for (const auto& cookie : gameMap->getCookies()) {
             draw(cookie);
         }
     }
@@ -58,17 +61,17 @@ public:
         pacMan = _pacMan;
     }
 
-    void setGameMap(GameMap *_gameMap) {
+    void setGameMap(const GameMap *_gameMap) {
         gameMap = _gameMap;
     }
 
-    void setGhost(Ghost *_ghost) {
-        ghost = _ghost;
+    void setGhosts(const std::deque<Ghost> *ghosts) {
+        ghosts_ = ghosts;
     }
 
 private:
     const size_t kMaxFPS = 60;
     PacMan *pacMan;
-    GameMap *gameMap;
-    Ghost *ghost;
+    const GameMap *gameMap;
+    const std::deque<Ghost> *ghosts_;
 };

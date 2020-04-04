@@ -15,12 +15,13 @@ using namespace std;
 
 static const sf::Color WALL_COLOR = sf::Color(52, 93, 199);
 static const sf::Color ROAD_COLOR = sf::Color(40, 40, 40);
-static const sf::Color COOKIE_COLOR = sf::Color(255, 255, 255, 128);
 
 static const char WALL_MARKER = '#';
 static const char UNREACHABLE_MARKER = '!';
 static const char ROAD_MARKER = ' ';
 static const char COOKIE_MARKER = '.';
+static const char PACMAN_MARKER = '$';
+static const char GHOST_MARKER = '@';
 
 const vector<Point> neighboursDeltas = {{-1, 0},
                                         {0,  -1},
@@ -29,20 +30,42 @@ const vector<Point> neighboursDeltas = {{-1, 0},
 
 static const std::string cookieTextureName = "../resources/fruit.png";
 
-static const sf::Color& getCorrectColor(char ch) {
-    if (ch == WALL_MARKER) {
-        return WALL_COLOR;
-    } else if (ch == ROAD_MARKER || ch == UNREACHABLE_MARKER || ch == COOKIE_MARKER) {
-        return ROAD_COLOR;
+static const sf::Color& getCorrectColor(CellType cellType) {
+    switch (cellType) {
+        case CellType::COOKIE:
+        case CellType::UNREACHABLE:
+        case CellType::ROAD:
+            return ROAD_COLOR;;
+        case CellType::WALL:
+            return WALL_COLOR;
+        default:
+            assert(false);
     }
-    assert(false);
-    return sf::Color::Black;
+}
+
+static CellType GetCellType(char ch) {
+    switch (ch) {
+        case WALL_MARKER:
+            return CellType::WALL;
+        case UNREACHABLE_MARKER:
+            return CellType::UNREACHABLE;
+        case ROAD_MARKER:
+        case PACMAN_MARKER:
+        case GHOST_MARKER:
+            return CellType::ROAD;
+        case COOKIE_MARKER:
+            return CellType::COOKIE;
+        default:
+            assert(false);
+            return CellType::UNREACHABLE;
+    }
 }
 
 GameMap::GameMap(const string& mapFilePathName) {
     ifstream in(mapFilePathName);
     in >> width >> height;
     in.ignore();
+    std::vector<std::string> fieldMaze;
     fieldMaze.resize(height);
     for (string& line : fieldMaze) {
         getline(in, line);
@@ -50,16 +73,29 @@ GameMap::GameMap(const string& mapFilePathName) {
 
     cookieTexture.loadFromFile(cookieTextureName);
 
-    rectangles.resize(width);
+    cells.resize(width);
     for (int x = 0; x < width; ++x) {
-        rectangles[x].resize(height);
+        cells[x].resize(height);
         for (int y = 0; y < height; ++y) {
-            rectangles[x][y] = sf::RectangleShape(sf::Vector2f{kBlockSize, kBlockSize});
-            rectangles[x][y].setPosition(x * kBlockSize, y * kBlockSize);
-            rectangles[x][y].setFillColor(getCorrectColor(fieldMaze[y][x]));
-            if (isCookie({x, y})) {
-                cookies.push_back(rectangles[x][y]);
-                cookies.back().setFillColor(sf::Color::White);
+            const Point point = {x, y};
+            Cell& cell = cells[x][y];
+            cell.cellType = GetCellType(fieldMaze[y][x]);
+            cell.rectangle = sf::RectangleShape(sf::Vector2f{kBlockSize, kBlockSize});
+            cell.rectangle.setPosition(x * kBlockSize, y * kBlockSize);
+            cell.rectangle.setFillColor(getCorrectColor(cell.cellType));
+            cell.mapCoords = point;
+
+            if (fieldMaze[y][x] == GHOST_MARKER) {
+                ghostsInitCoords.push_back(point);
+            }
+
+            if (fieldMaze[y][x] == PACMAN_MARKER) {
+                pacmanInitCoords = point;
+            }
+
+            if (isCookie(point)) {
+                cookies.push_back(cell.rectangle);
+                cookies.back().setFillColor(sf::Color::White); // TODO: need this lines because of bug with texture
                 cookies.back().setTexture(&cookieTexture);
             }
         }
@@ -78,8 +114,8 @@ float GameMap::getBlockSize() const {
     return kBlockSize;
 }
 
-const vector<vector<sf::RectangleShape>>& GameMap::getRectangles() const {
-    return rectangles;
+const vector<vector<Cell>>& GameMap::getCells() const {
+    return cells;
 }
 
 const vector<sf::RectangleShape>& GameMap::getCookies() const {
@@ -90,9 +126,9 @@ queue<sf::Vector2f> GameMap::createWayTo(const sf::Vector2f& to, const sf::Vecto
     Point fn = convertToMapCoordinates(to);
     Point st = convertToMapCoordinates(from);
 
-    auto res1 = ConvertWayToWorldCoordinates(PathFinder::dfs(st, fn, *this));
-    auto res2 = ConvertWayToWorldCoordinates(PathFinder::bfs(st, fn, *this));
-    auto res3 = ConvertWayToWorldCoordinates(PathFinder::greedy(st, fn, *this));
+//    auto res1 = ConvertWayToWorldCoordinates(PathFinder::dfs(st, fn, *this));
+//    auto res2 = ConvertWayToWorldCoordinates(PathFinder::bfs(st, fn, *this));
+//    auto res3 = ConvertWayToWorldCoordinates(PathFinder::greedy(st, fn, *this));
     auto res4 = ConvertWayToWorldCoordinates(PathFinder::a_star(st, fn, *this));
 
     return res4;
@@ -125,28 +161,12 @@ sf::Vector2f GameMap::convertToWorldCoordinates(const Point& p) const {
     return {p.x * kBlockSize, p.y * kBlockSize};
 }
 
-bool GameMap::isWall(const Point& p) const {
-    return fieldMaze[p.y][p.x] == WALL_MARKER;
-}
-
-bool GameMap::isCookie(const Point& p) const {
-    return fieldMaze[p.y][p.x] == COOKIE_MARKER;
-}
-
-bool GameMap::isRoad(const Point& p) const {
-    return fieldMaze[p.y][p.x] == ROAD_MARKER;
-}
-
-bool GameMap::isFree(const Point& p) const {
-    return fieldMaze[p.y][p.x] == ROAD_MARKER || fieldMaze[p.y][p.x] == COOKIE_MARKER;
-}
-
 bool GameMap::canGoTo(const Point& p) const {
-    return p.x >= 0 && p.y >= 0 && p.x < width && p.y < height && isFree(p);
+    return p.x >= 0 && p.y >= 0 && p.x < width && p.y < height && (isRoad(p) || isCookie(p));
 }
 
-bool GameMap::checkPacmanAtCookie(const PacMan& pacman) {
-    Point pacmanCoord = convertToMapCoordinates(pacman.getPosition());
+bool GameMap::checkPacmanAtCookie(const Monster *pacman) {
+    Point pacmanCoord = convertToMapCoordinates(pacman->getPosition());
     if (isCookie(pacmanCoord)) {
         eatCookie(pacmanCoord);
         return true;
@@ -155,10 +175,31 @@ bool GameMap::checkPacmanAtCookie(const PacMan& pacman) {
 }
 
 void GameMap::eatCookie(const Point& p) {
-    fieldMaze[p.y][p.x] = ROAD_MARKER;
+    assert(cells[p.x][p.y].cellType == CellType::COOKIE);
+    cells[p.x][p.y].cellType = CellType::ROAD;
     cookies.erase(
             std::find_if(cookies.begin(), cookies.end(), [&](const sf::RectangleShape& rect) {
                 return convertToMapCoordinates(rect.getPosition()) == p;
             })
     );
+}
+
+bool GameMap::isWall(const Point& p) const {
+    return cells[p.x][p.y].cellType == CellType::WALL;
+}
+
+bool GameMap::isCookie(const Point& p) const {
+    return cells[p.x][p.y].cellType == CellType::COOKIE;
+}
+
+bool GameMap::isRoad(const Point& p) const {
+    return cells[p.x][p.y].cellType == CellType::ROAD;
+}
+
+const Point& GameMap::getPacmanInitCoords() const {
+    return pacmanInitCoords;
+}
+
+const std::vector<Point>& GameMap::getGhostsInitCoords() const {
+    return ghostsInitCoords;
 }

@@ -6,8 +6,9 @@ static const sf::IntRect FRAME_EYES_LEFT(0, 0, 32, 32);
 static const sf::IntRect FRAME_EYES_CENTER(32, 0, 32, 32);
 static const sf::IntRect FRAME_EYES_RIGHT(64, 0, 32, 32);
 
-Ghost::Ghost(const std::string& ghostTexture, const sf::Vector2f& size, const sf::Vector2f& coord)
-        : Monster(ghostTexture, size, coord, MonsterType::GHOST) {
+
+Ghost::Ghost(const std::string& pathToTexture, const sf::Vector2f& size, const sf::Vector2f& coord, float speed)
+        : Monster(pathToTexture, size, coord, MonsterType::GHOST, speed) {
     setTextureRect(FRAME_EYES_CENTER);
 }
 

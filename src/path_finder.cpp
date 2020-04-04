@@ -25,6 +25,9 @@ bool dfsHelper(const Point& st, const Point& fn, vector<vector<bool>>& used,
 namespace PathFinder {
 
 vector<Point> dfs(const Point& st, const Point& fn, const GameMap& gameMap) {
+    if (gameMap.isWall(fn)) {
+        return {};
+    }
     size_t width = gameMap.getWidth();
     size_t height = gameMap.getHeight();
     vector<vector<bool>> used(width);
@@ -51,6 +54,9 @@ vector<Point> dfs(const Point& st, const Point& fn, const GameMap& gameMap) {
 }
 
 vector<Point> bfs(const Point& st, const Point& fn, const GameMap& gameMap) {
+    if (gameMap.isWall(fn)) {
+        return {};
+    }
     size_t width = gameMap.getWidth();
     size_t height = gameMap.getHeight();
     queue<Point> q;
@@ -95,6 +101,9 @@ vector<Point> bfs(const Point& st, const Point& fn, const GameMap& gameMap) {
 }
 
 vector<Point> greedy(const Point& st, const Point& fn, const GameMap& gameMap) {
+    if (gameMap.isWall(fn)) {
+        return {};
+    }
     size_t width = gameMap.getWidth();
     size_t height = gameMap.getHeight();
     set<pair<int, Point>> q;
@@ -141,6 +150,9 @@ vector<Point> greedy(const Point& st, const Point& fn, const GameMap& gameMap) {
 }
 
 vector<Point> a_star(const Point& st, const Point& fn, const GameMap& gameMap) {
+    if (gameMap.isWall(fn)) {
+        return {};
+    }
     size_t width = gameMap.getWidth();
     size_t height = gameMap.getHeight();
     set<pair<int, Point>> q;
