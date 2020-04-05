@@ -140,7 +140,7 @@ void startGame(int level) {
 }
 
 int main() {
-    startGame(3);
+    startGame(1);
 
     return 0;
 }
