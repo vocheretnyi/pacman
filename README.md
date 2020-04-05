@@ -2,6 +2,8 @@
 
 ## Demo:
 ![](resources/demo.gif)
+![](resources/demo-2.png)
+![](resources/demo-3.png)
 
 ## Used:
 C++, SFML, Cmake
