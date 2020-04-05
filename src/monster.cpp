@@ -70,3 +70,8 @@ void Monster::setTarget(sf::Vector2f target) {
 MonsterType Monster::getMonsterType() const {
     return monsterType;
 }
+
+void Monster::stopMoving() {
+    isWaiting_ = true;
+    targetPoint = {-1, -1};
+}

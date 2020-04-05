@@ -149,7 +149,7 @@ vector<Point> greedy(const Point& st, const Point& fn, const GameMap& gameMap) {
 
 }
 
-vector<Point> a_star(const Point& st, const Point& fn, const GameMap& gameMap) {
+vector<Point> a_star(const Point& st, const Point& fn, const GameMap& gameMap, bool isForGhost) {
     if (gameMap.isWall(fn)) {
         return {};
     }
@@ -179,7 +179,7 @@ vector<Point> a_star(const Point& st, const Point& fn, const GameMap& gameMap) {
         if (cur == fn) {
             break;
         }
-        for (const auto& to : gameMap.getNeighbours(cur)) {
+        for (const auto& to : gameMap.getNeighbours(cur, isForGhost)) {
             int newCost = d[cur.x][cur.y] + 1;
             if (newCost < d[to.x][to.y]) {
                 d[to.x][to.y] = newCost;
@@ -194,7 +194,7 @@ vector<Point> a_star(const Point& st, const Point& fn, const GameMap& gameMap) {
     vector<Point> way = getWayToTargetBaseOnParent(fn, parent);
 
     aStarStats.setPathLength(way.size());
-    cout << aStarStats << "\n";
+//    cout << aStarStats << "\n";
     return way;
 }
 

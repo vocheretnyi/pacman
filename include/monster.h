@@ -21,6 +21,8 @@ public:
 
     bool isWaiting() const;
 
+    void stopMoving();
+
     MonsterType getMonsterType() const;
 
 protected:

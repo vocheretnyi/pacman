@@ -20,7 +20,9 @@ pair<int, Point> NegaMax(Monster player1, Monster player2, GameMap gameMap, int 
         return {BIG_VALUE * -coef, {}};
     }
     Monster pacMan = player1.getMonsterType() == MonsterType::PACMAN ? player1 : player2;
-    if (gameMap.checkPacmanAtCookie(&player1)) { // pacman or player1?
+
+    if (gameMap.isCookie(gameMap.convertToMapCoordinates(player1.getPosition()))) { // pacman or player1?
+        gameMap.eatCookie(gameMap.convertToMapCoordinates(player1.getPosition()));
         ++cookies;
         if (gameMap.getCookies().size() == 0) {
             return {BIG_VALUE * -coef, {}};
@@ -82,7 +84,6 @@ pair<int, Point> NegaMax(Monster player1, Monster player2, GameMap gameMap, int 
 }
 
 Point MiniMax::GetDecision(const Monster* player1, const Monster* player2, const GameMap& gameMap) {
-    srand(time(NULL));
     if (rand() % 20 > 1 || player1->getMonsterType() == MonsterType::PACMAN) { // calc minmax
         return NegaMax(*player1, *player2, gameMap, MINIMAX_DEPTH, -1, 0, -BIG_VALUE, BIG_VALUE).second; // TODO: coef?
     } else { // make random move

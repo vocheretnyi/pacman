@@ -15,4 +15,5 @@ struct Cell {
     sf::RectangleShape rectangle;
     Point mapCoords;
     CellType cellType;
+    bool isGhost;
 };

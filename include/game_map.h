@@ -41,10 +41,11 @@ public:
 
     sf::Vector2f convertToWorldCoordinates(const Point& p) const;
 
-    std::vector<Point> getNeighbours(const Point& p) const;
+    std::vector<Point> getNeighbours(const Point& p, bool isForGhost = false) const;
 
-    bool checkPacmanAtCookie(const Monster *pacman);
+//    bool checkPacmanAtCookie(const Monster *pacman);
 
+    // assume that point p is a cookies cell
     void eatCookie(const Point& p);
 
     // Helpers
@@ -56,6 +57,10 @@ public:
     bool isCookie(const Point& p) const;
 
     bool isRoad(const Point& p) const;
+
+    std::vector<std::vector<double>> visited;
+
+    void setGhostsPositions(std::vector<Point> ghostsPos, bool value = true);
 
 private:
     const float kBlockSize = 25.0;

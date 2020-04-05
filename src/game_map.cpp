@@ -73,6 +73,8 @@ GameMap::GameMap(const string& mapFilePathName) {
 
     cookieTexture.loadFromFile(cookieTextureName);
 
+    visited = vector<vector<double>>(width, vector<double>(height, 0.0f));
+
     cells.resize(width);
     for (int x = 0; x < width; ++x) {
         cells[x].resize(height);
@@ -134,11 +136,14 @@ queue<sf::Vector2f> GameMap::createWayTo(const sf::Vector2f& to, const sf::Vecto
     return res4;
 }
 
-std::vector<Point> GameMap::getNeighbours(const Point& cur) const {
+std::vector<Point> GameMap::getNeighbours(const Point& cur, bool isForGhost) const {
     std::vector<Point> res;
     for (const Point& delta : neighboursDeltas) {
         Point to = cur + delta;
         if (canGoTo(to)) {
+            if (isForGhost && cells[to.x][to.y].isGhost) {
+                continue;
+            }
             res.push_back(to);
         }
     }
@@ -165,14 +170,14 @@ bool GameMap::canGoTo(const Point& p) const {
     return p.x >= 0 && p.y >= 0 && p.x < width && p.y < height && (isRoad(p) || isCookie(p));
 }
 
-bool GameMap::checkPacmanAtCookie(const Monster *pacman) {
-    Point pacmanCoord = convertToMapCoordinates(pacman->getPosition());
-    if (isCookie(pacmanCoord)) {
-        eatCookie(pacmanCoord);
-        return true;
-    }
-    return false;
-}
+//bool GameMap::checkPacmanAtCookie(const Monster *pacman) {
+//    Point pacmanCoord = convertToMapCoordinates(pacman->getPosition());
+//    if (isCookie(pacmanCoord)) {
+//        eatCookie(pacmanCoord);
+//        return true;
+//    }
+//    return false;
+//}
 
 void GameMap::eatCookie(const Point& p) {
     assert(cells[p.x][p.y].cellType == CellType::COOKIE);
@@ -202,4 +207,10 @@ const Point& GameMap::getPacmanInitCoords() const {
 
 const std::vector<Point>& GameMap::getGhostsInitCoords() const {
     return ghostsInitCoords;
+}
+
+void GameMap::setGhostsPositions(std::vector<Point> ghostsPos, bool value) {
+    for (const Point& point : ghostsPos) {
+        cells[point.x][point.y].isGhost = value;
+    }
 }
