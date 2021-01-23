@@ -26,14 +26,15 @@ Point GetDecision(const PacMan& pacMan, const Ghost& ghost, const GameMap& gameM
     std::uniform_int_distribution<> uid(0, 50);
     if (uid(gen) < 47) {
         auto res = PathFinder::a_star(ghostPos, pacmanPos, gameMap, true);
-        return res[0];
-    } else { // make random move
-        auto neighbours = gameMap.getNeighbours(ghostPos);
-
-        assert(!neighbours.empty());
-        int rnd = rand() % (neighbours.size());
-        return neighbours[rnd];
+        if (!res.empty()) {
+            return res[0];
+        }
     }
+    // make random move
+    auto neighbours = gameMap.getNeighbours(ghostPos);
+    assert(!neighbours.empty());
+    int rnd = rand() % (neighbours.size());
+    return neighbours[rnd];
 }
 
 }
